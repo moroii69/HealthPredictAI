@@ -56,7 +56,7 @@ export default function Home() {
             <FeatureCard
               icon={Brain}
               title="health predictions"
-              description="machine learning predicts your next health disaster—you're welcome. panic now, thank me later."
+              description="machine learning predicts your next health disaster—you're welcome. panic now, thank the admin later."
             />
             <FeatureCard
               icon={Activity}
@@ -66,7 +66,7 @@ export default function Home() {
             <FeatureCard
               icon={Shield}
               title="data security"
-              description="your health data's locked up tighter than my secret taco stash. only hackers can ruin this party."
+              description="your health data's locked up tighter than the admin's secret taco stash. only hackers can ruin this party."
             />
           </div>
           </div>
