@@ -27,11 +27,8 @@ jobs:
       - name: Run tests
         run: npm test    
 
-      - name: Build the project
-        run: npm run build    
 
-      # Optional: Deploy to production (e.g., Vercel, Netlify, etc.)
       - name: Deploy to Vercel (Example)
-        run: vercel --prod --token ${{ secrets.VERCEL_TOKEN }}  # This deploys to Vercel. Ensure you set the token as a GitHub secret.
+        run: vercel --prod --token ${{ secrets.VERCEL_TOKEN }} 
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}  # Replace with your deployment platform's method for authentication
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }} 
