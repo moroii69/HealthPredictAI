@@ -1,42 +1,37 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { User, onAuthStateChanged } from "firebase/auth";  // firebase user auth
-import { auth } from "@/lib/firebase";  // firebase auth instance
+import { User, onAuthStateChanged } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
-// auth context type definition
 interface AuthContextType {
-  user: User | null;  // current user or null
-  loading: boolean;  // loading state
+  user: User | null;
+  loading: boolean;
 }
 
-// create context with default values
 const AuthContext = createContext<AuthContextType>({
   user: null,
   loading: true,
 });
 
-// auth provider component to manage user state
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);  // user state
-  const [loading, setLoading] = useState(true);  // loading state
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // listen for auth state changes (user sign-in/out)
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      setUser(user);  // update user state
-      setLoading(false);  // set loading to false once auth state is determined
+      setUser(user);
+      setLoading(false);
     });
 
-    return () => unsubscribe();  // cleanup listener on unmount
+    return () => unsubscribe();
   }, []);
 
   return (
     <AuthContext.Provider value={{ user, loading }}>
-      {children}  
+      {children}
     </AuthContext.Provider>
   );
 }
 
-// custom hook to access auth context
 export const useAuth = () => useContext(AuthContext);
