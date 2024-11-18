@@ -33,7 +33,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <AuthContext.Provider value={{ user, loading }}>
-      {children}  // provide auth context to children components
+      {children}  
     </AuthContext.Provider>
   );
 }
