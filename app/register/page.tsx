@@ -3,8 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { 
+  createUserWithEmailAndPassword, 
+  GoogleAuthProvider, 
+  GithubAuthProvider, 
+  signInWithPopup 
+} from "firebase/auth";
+import { doc, setDoc, getDoc } from "firebase/firestore";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -40,6 +45,63 @@ export default function RegisterPage() {
     },
   });
 
+  // Common user creation logic extracted to a separate function
+  async function createUserProfile(user: any, additionalData: any = {}) {
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+
+    // Prepare user data with fallback values
+    const userData: any = {
+      name: additionalData.name || user.displayName || '',
+      email: user.email,
+      createdAt: new Date().toISOString(),
+    };
+
+    // Only add condition if it's a valid value
+    if (additionalData.condition && 
+        ["diabetes", "hypertension", "copd", "ckd", "chf"].includes(additionalData.condition)) {
+      userData.condition = additionalData.condition;
+    }
+
+    // Only create profile if it doesn't already exist
+    if (!userSnap.exists()) {
+      await setDoc(userRef, userData);
+    }
+
+    return userRef;
+  }
+
+  async function onSocialSignUp(provider: 'google' | 'github') {
+    setLoading(true);
+    try {
+      const authProvider = provider === 'google' 
+        ? new GoogleAuthProvider() 
+        : new GithubAuthProvider();
+
+      const userCredential = await signInWithPopup(auth, authProvider);
+      
+      // Attempt to get condition from form if filled
+      const condition = form.getValues('condition');
+
+      await createUserProfile(userCredential.user, { condition });
+
+      toast({
+        title: "✅ Success",
+        description: `Signed up with ${provider} successfully!`,
+        variant: "default",
+      });
+
+      router.push("/dashboard");
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+      setLoading(false);
+    }
+  }
+
   async function onSubmit(values: z.infer<typeof registerSchema>) {
     setLoading(true);
     try {
@@ -49,12 +111,7 @@ export default function RegisterPage() {
         values.password
       );
 
-      await setDoc(doc(db, "users", userCredential.user.uid), {
-        name: values.name,
-        email: values.email,
-        condition: values.condition,
-        createdAt: new Date().toISOString(),
-      });
+      await createUserProfile(userCredential.user, values);
 
       toast({
         title: "✅ Success",
@@ -81,6 +138,38 @@ export default function RegisterPage() {
           <CardDescription>Sign up to start managing your health</CardDescription>
         </CardHeader>
         <CardContent>
+          <div className="flex space-x-2 mb-4">
+            <Button 
+              type="button" 
+              variant="outline" 
+              className="w-full" 
+              onClick={() => onSocialSignUp('google')}
+              disabled={loading}
+            >
+              Sign up with Google
+            </Button>
+            <Button 
+              type="button" 
+              variant="outline" 
+              className="w-full" 
+              onClick={() => onSocialSignUp('github')}
+              disabled={loading}
+            >
+              Sign up with GitHub
+            </Button>
+          </div>
+
+          <div className="relative mb-4">
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-background px-2 text-muted-foreground">
+                Or continue with email
+              </span>
+            </div>
+          </div>
+
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
