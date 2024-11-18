@@ -3,14 +3,14 @@ name: CI Pipeline
 on:
   push:
     branches:
-      - main    # This triggers the pipeline when code is pushed to the main branch.
+      - main
   pull_request:
     branches:
-      - main    # This triggers the pipeline on pull requests targeting the main branch.
+      - main
 
 jobs:
   build:
-    runs-on: ubuntu-latest    # Runs on the latest Ubuntu environment.
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -19,16 +19,15 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '14'    
+          node-version: '18'
 
       - name: Install dependencies
-        run: npm install    
+        run: npm install
 
       - name: Run tests
-        run: npm test    
-
+        run: npm test
 
       - name: Deploy to Vercel (Example)
-        run: vercel --prod --token ${{ secrets.VERCEL_TOKEN }} 
+        run: vercel --prod --token ${{ secrets.VERCEL_TOKEN }}
         env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }} 
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
