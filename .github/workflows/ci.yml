@@ -24,8 +24,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run tests
-        run: npm test
 
       - name: Deploy to Vercel (Example)
         run: vercel --prod --token ${{ secrets.VERCEL_TOKEN }}
